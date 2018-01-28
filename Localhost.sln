@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Localhost", "Localhost.csproj", "{EA16C343-BCED-876A-D714-DAB66050EF97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Localhost.Editor", "Localhost.Editor.csproj", "{BCB45E3C-2EDF-A4C7-4929-856CFF09EA6E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA16C343-BCED-876A-D714-DAB66050EF97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA16C343-BCED-876A-D714-DAB66050EF97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA16C343-BCED-876A-D714-DAB66050EF97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA16C343-BCED-876A-D714-DAB66050EF97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCB45E3C-2EDF-A4C7-4929-856CFF09EA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB45E3C-2EDF-A4C7-4929-856CFF09EA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB45E3C-2EDF-A4C7-4929-856CFF09EA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB45E3C-2EDF-A4C7-4929-856CFF09EA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
