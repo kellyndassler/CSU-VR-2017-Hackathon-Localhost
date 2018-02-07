@@ -687,6 +687,13 @@
     <None Include="Assets\templates\gReference.txt" />
     <None Include="Assets\templates\hReference.txt" />
     <None Include="Assets\templates\iReference.txt" />
+    <None Include="Assets\templatesAxised\aReference.txt" />
+    <None Include="Assets\templatesAxised\bReference.txt" />
+    <None Include="Assets\templatesAxised\cReference.txt" />
+    <None Include="Assets\templatesAxised\dReference.txt" />
+    <None Include="Assets\templatesAxised\eReference.txt" />
+    <None Include="Assets\templatesAxised\fReference.txt" />
+    <None Include="Assets\templatesAxised\gReference.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

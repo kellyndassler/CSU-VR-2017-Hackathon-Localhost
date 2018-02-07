@@ -46,7 +46,6 @@ public class SpaceBar : MonoBehaviour
     private double thumbWeight = 1.5;   //increased weight to apply to the thumb, as it is highly important to many signs
     public double defaultPrecision = 10.01;   //default precision for a hand pose.
     public double maxDistance = 35.0;
-
     public bool ChallengeActive = false;
     public bool ChallengePause = false;
     public long currentTick = 0;
@@ -104,9 +103,9 @@ public class SpaceBar : MonoBehaviour
             int i = 0;
             Hand compareHand;
             currentTick = DateTime.Now.Ticks;
-            if (nextTick <= currentTick && framey.CurrentFramesPerSecond > 0 && framey.Hands.Count > 0)        //if there are multiple tracking frames and hand in frame
+            if (nextTick <= currentTick && (framey.CurrentFramesPerSecond > 0 && framey.Hands.Count > 0))        //if there are multiple tracking frames and hand in frame
             {
-                nextTick = DateTime.Now.Ticks + 1500000;   //10 million ticks = 1 second
+                nextTick = DateTime.Now.Ticks + 15000000;   //10 million ticks = 1 second
                 compareHand = framey.Hands[0];
                 
                 double compareVal = 100;    //default value above any leap motion can give
@@ -199,101 +198,68 @@ public class SpaceBar : MonoBehaviour
     //update the text based on the standard timer
     void UpdateText(string output)
     {
-        //if (Time.time > nextActionTime)
-        //{
-            //nextActionTime = Time.time + period;            
-            //textmeshPro = GetComponent<TextMeshPro>();
-            textmeshPro.color = new Color32(0, 255, 0, 255);
-            //textmeshPro.SetText("You signed it!");
-            textmeshPro.text = (output);
-            //print(textmeshPro.text);
-            textmeshPro.ForceMeshUpdate();
-            //textChanger sn = GetComponent<textChanger>();
-            //sn.changeText("You correctly signed it!");
-
-        //}
-
-
+        textmeshPro.color = new Color32(0, 255, 0, 255);
+        textmeshPro.text = (output);
+        textmeshPro.ForceMeshUpdate();
         return;
     }
-
-    //update the text based on a timer for transitioning back to default text
-    void UpdateTextBad(string output)
-    {
-        //if (Time.time > nextResetTime)
-        //{
-            //nextActionTime = Time.time + resetPeriod;
-
-
-            //textmeshPro = GetComponent<TextMeshPro>();
-            textmeshPro.color = new Color32(255, 0, 0, 255);
-            //textmeshPro.SetText("You signed it!");
-            textmeshPro.text = (output);
-            //print(textmeshPro.text);
-            textmeshPro.ForceMeshUpdate();
-            //textChanger sn = GetComponent<textChanger>();
-            //sn.changeText("You correctly signed it!");
-
-        //}
-
-
-        return;
-    }
-
 
     void Update()
     {
-        bool createRefs = false;
+        bool createRefs = true;
         //used for building dictionary. not sure why it only will work once per run of program.
         //has an exception around file sharing/permissions, but writes and reads the files anyway.
-        if (createRefs && Input.anyKeyDown)
+        if (createRefs)
         {
-            string keyPressed = Input.inputString;
-            Frame framey = cont.Frame();
-            if (framey.CurrentFramesPerSecond > 0 && framey.Hands.Count > 0)    //if in a valid frame
+            if (Input.anyKeyDown)
             {
-                Hand whyDoesThisNotWork = framey.Hands[0];  //but it does work now! 
-                string filename = saveTheStuffs(whyDoesThisNotWork, (keyPressed + "Reference.txt"));    //save file based on key pressed.
-
-                signTemplate testymctestface = readTheStuffs(filename); //read back the file
-                print(compareHands(testymctestface.data, whyDoesThisNotWork));
-
-                if (compareHands(testymctestface.data, whyDoesThisNotWork) > 0.01)
+                string keyPressed = Input.inputString;
+                Frame framey = cont.Frame();
+                if (framey.CurrentFramesPerSecond > 0 && framey.Hands.Count > 0)    //if in a valid frame
                 {
-                    throw new InvalidOperationException("Hand written and hand read don't match");
+                    Hand whyDoesThisNotWork = framey.Hands[0];  //but it does work now! 
+                    string filename = saveTheStuffs(whyDoesThisNotWork, (keyPressed + "Reference.txt"));    //save file based on key pressed.
+
+                    signTemplate testymctestface = readTheStuffs(filename); //read back the file
+                    print(compareHands(testymctestface.data, whyDoesThisNotWork));
+
+                    if (compareHands(testymctestface.data, whyDoesThisNotWork) > 0.01)
+                    {
+                        throw new InvalidOperationException("Hand written and hand read don't match");
+                    }
+                }
+                else
+                {
+                    print("no hands");
                 }
             }
-            else
+            else {; }
+        }  
+        else
+        {
+            if (!ChallengeActive && Input.GetButtonDown("StartChallenge"))
             {
-                print("no hands");
+                UpdateText("Challenge:\n Spell BED");
+                ChallengeActive = true;
+                nextTick = DateTime.Now.Ticks + 20000000;
+                signSoFar = "";
             }
-        }
 
-
-        if (!ChallengeActive && Input.GetButtonDown("StartChallenge"))
-        {
-            UpdateText("Challenge:\n Spell BED");
-            ChallengeActive = true;
-            nextTick = DateTime.Now.Ticks + 20000000;
-            signSoFar = "";
-        }
-        
-        if (ChallengeActive)
-        {
-            if (signSoFar.Contains("bed"))
+            if (ChallengeActive)
             {
-                UpdateText("Challenge Complete");
-                bed.SetActive(true);
-                
-                //ChallengeActive = false;
+                if (signSoFar.Contains("bed"))
+                {
+                    UpdateText("Challenge Complete");
+                    bed.SetActive(true);
+                }
             }
-        }
 
-        if(ChallengeActive && Input.GetButtonDown("ResetChallenge"))
-        {
-            bed.SetActive(false);
-            ChallengeActive = false;
-            signSoFar = "";
+            if (ChallengeActive && Input.GetButtonDown("ResetChallenge"))
+            {
+                bed.SetActive(false);
+                ChallengeActive = false;
+                signSoFar = "";
+            }
         }
         return;
     }
@@ -304,38 +270,50 @@ public class SpaceBar : MonoBehaviour
         cont.FrameReady -= handleFrameReady; //remove listener
     }
 
+    public static Vector3 leapDirToV3 (Leap.Vector leapV)
+    {
+        return new Vector3(leapV.x, leapV.y, leapV.z);
+    }
+
     public double compareHands(double[,] refHandMatrix, Hand currentHand)
     {
-
         //massive hardcoded assignments. The loops got screwy. get 4 bones for each finger, and the palm normal vector.
         double[,] currHandMatrix = new double[21, 3];
 
-        double[] thumb1 = new double[3] { currentHand.Fingers[0].bones[0].Direction.x * thumbWeight, currentHand.Fingers[0].bones[0].Direction.y * thumbWeight, currentHand.Fingers[0].bones[0].Direction.z * thumbWeight };
-        double[] thumb2 = new double[3] { currentHand.Fingers[0].bones[1].Direction.x * thumbWeight, currentHand.Fingers[0].bones[1].Direction.y * thumbWeight, currentHand.Fingers[0].bones[1].Direction.z * thumbWeight };
-        double[] thumb3 = new double[3] { currentHand.Fingers[0].bones[2].Direction.x * thumbWeight, currentHand.Fingers[0].bones[2].Direction.y * thumbWeight, currentHand.Fingers[0].bones[2].Direction.z * thumbWeight };
-        double[] thumb4 = new double[3] { currentHand.Fingers[0].bones[3].Direction.x * thumbWeight, currentHand.Fingers[0].bones[3].Direction.y * thumbWeight, currentHand.Fingers[0].bones[3].Direction.z * thumbWeight };
+        Vector3 palm = leapDirToV3(currentHand.PalmNormal);
+        //rotate palm and all other hand vectors so that the palm of the hand points along the z axis
+        Vector3 zAxis = new Vector3(0, 0, 3);
+        double angle = Math.Acos((Vector3.Dot(palm, zAxis)) / (palm.magnitude * zAxis.magnitude));
+        angle *= (180 / Math.PI);
+        Vector3 crossed = Vector3.Cross(palm, zAxis);
+        Quaternion rotation = Quaternion.AngleAxis((float)angle, crossed);
+        palm = rotation * palm;
 
-        double[] index1 = new double[3] { currentHand.Fingers[1].bones[0].Direction.x, currentHand.Fingers[1].bones[0].Direction.y, currentHand.Fingers[1].bones[0].Direction.z };
-        double[] index2 = new double[3] { currentHand.Fingers[1].bones[1].Direction.x, currentHand.Fingers[1].bones[1].Direction.y, currentHand.Fingers[1].bones[1].Direction.z };
-        double[] index3 = new double[3] { currentHand.Fingers[1].bones[2].Direction.x, currentHand.Fingers[1].bones[2].Direction.y, currentHand.Fingers[1].bones[2].Direction.z };
-        double[] index4 = new double[3] { currentHand.Fingers[1].bones[3].Direction.x, currentHand.Fingers[1].bones[3].Direction.y, currentHand.Fingers[1].bones[3].Direction.z };
 
-        double[] middle1 = new double[3] { currentHand.Fingers[2].bones[0].Direction.x, currentHand.Fingers[2].bones[0].Direction.y, currentHand.Fingers[2].bones[0].Direction.z };
-        double[] middle2 = new double[3] { currentHand.Fingers[2].bones[1].Direction.x, currentHand.Fingers[2].bones[1].Direction.y, currentHand.Fingers[2].bones[1].Direction.z };
-        double[] middle3 = new double[3] { currentHand.Fingers[2].bones[2].Direction.x, currentHand.Fingers[2].bones[2].Direction.y, currentHand.Fingers[2].bones[2].Direction.z };
-        double[] middle4 = new double[3] { currentHand.Fingers[2].bones[3].Direction.x, currentHand.Fingers[2].bones[3].Direction.y, currentHand.Fingers[2].bones[3].Direction.z };
+        Vector3 thumb1 = rotation * leapDirToV3(currentHand.Fingers[0].bones[0].Direction);
+        Vector3 thumb2 = rotation * leapDirToV3(currentHand.Fingers[0].bones[1].Direction);
+        Vector3 thumb3 = rotation * leapDirToV3(currentHand.Fingers[0].bones[2].Direction);
+        Vector3 thumb4 = rotation * leapDirToV3(currentHand.Fingers[0].bones[3].Direction);
 
-        double[] ring1 = new double[3] { currentHand.Fingers[3].bones[0].Direction.x, currentHand.Fingers[3].bones[0].Direction.y, currentHand.Fingers[3].bones[0].Direction.z };
-        double[] ring2 = new double[3] { currentHand.Fingers[3].bones[1].Direction.x, currentHand.Fingers[3].bones[1].Direction.y, currentHand.Fingers[3].bones[1].Direction.z };
-        double[] ring3 = new double[3] { currentHand.Fingers[3].bones[2].Direction.x, currentHand.Fingers[3].bones[2].Direction.y, currentHand.Fingers[3].bones[2].Direction.z };
-        double[] ring4 = new double[3] { currentHand.Fingers[3].bones[3].Direction.x, currentHand.Fingers[3].bones[3].Direction.y, currentHand.Fingers[3].bones[3].Direction.z };
+        Vector3 index1 = rotation * leapDirToV3(currentHand.Fingers[1].bones[0].Direction);
+        Vector3 index2 = rotation * leapDirToV3(currentHand.Fingers[1].bones[1].Direction);
+        Vector3 index3 = rotation * leapDirToV3(currentHand.Fingers[1].bones[2].Direction);
+        Vector3 index4 = rotation * leapDirToV3(currentHand.Fingers[1].bones[3].Direction);
 
-        double[] pinky1 = new double[3] { currentHand.Fingers[4].bones[0].Direction.x, currentHand.Fingers[4].bones[0].Direction.y, currentHand.Fingers[4].bones[0].Direction.z };
-        double[] pinky2 = new double[3] { currentHand.Fingers[4].bones[1].Direction.x, currentHand.Fingers[4].bones[1].Direction.y, currentHand.Fingers[4].bones[1].Direction.z };
-        double[] pinky3 = new double[3] { currentHand.Fingers[4].bones[2].Direction.x, currentHand.Fingers[4].bones[2].Direction.y, currentHand.Fingers[4].bones[2].Direction.z };
-        double[] pinky4 = new double[3] { currentHand.Fingers[4].bones[3].Direction.x, currentHand.Fingers[4].bones[3].Direction.y, currentHand.Fingers[4].bones[3].Direction.z };
+        Vector3 middle1 = rotation * leapDirToV3(currentHand.Fingers[2].bones[0].Direction);
+        Vector3 middle2 = rotation * leapDirToV3(currentHand.Fingers[2].bones[1].Direction);
+        Vector3 middle3 = rotation * leapDirToV3(currentHand.Fingers[2].bones[2].Direction);
+        Vector3 middle4 = rotation * leapDirToV3(currentHand.Fingers[2].bones[3].Direction);
 
-        double[] palm = new double[3] { currentHand.PalmNormal.x, currentHand.PalmNormal.y, currentHand.PalmNormal.z };
+        Vector3 ring1 = rotation * leapDirToV3(currentHand.Fingers[3].bones[0].Direction);
+        Vector3 ring2 = rotation * leapDirToV3(currentHand.Fingers[3].bones[1].Direction);
+        Vector3 ring3 = rotation * leapDirToV3(currentHand.Fingers[3].bones[2].Direction);
+        Vector3 ring4 = rotation * leapDirToV3(currentHand.Fingers[3].bones[3].Direction);
+
+        Vector3 pinky1 = rotation * leapDirToV3(currentHand.Fingers[4].bones[0].Direction);
+        Vector3 pinky2 = rotation * leapDirToV3(currentHand.Fingers[4].bones[1].Direction);
+        Vector3 pinky3 = rotation * leapDirToV3(currentHand.Fingers[4].bones[2].Direction);
+        Vector3 pinky4 = rotation * leapDirToV3(currentHand.Fingers[4].bones[3].Direction);
 
         //write the various bones to a singe matrix.
         for (int i = 0; i < 3; i++)
@@ -370,47 +348,59 @@ public class SpaceBar : MonoBehaviour
         {
             for (int k = 0; k < 3; k++)
             {
-                if ((Math.Abs(refHandMatrix[j, k] - currHandMatrix[j, k])) >= .001)
+                diff = Math.Abs(refHandMatrix[j, k] - currHandMatrix[j, k]);
+                if (diff >= .001)
                 {
-                    diff = Math.Abs(refHandMatrix[j, k] - currHandMatrix[j, k]);
+                    if (j == 1 || j == 2 || j == 3 || j == 4)
+                    {
+                        diff *= thumbWeight;
+                    }
                     result += diff;
                 }
-                //print("result diff: " + refHandMatrix[j, k] + " " + currHandMatrix[j, k] + " = " + diff);
+                print("result diff: " + refHandMatrix[j, k] + " " + currHandMatrix[j, k] + " = " + diff);
             }
         }
         return result;
     }
 
     //write hand to file.
-    //The other one
     private string saveTheStuffs(Hand currentHand, string filename)
     {
-        double[] thumb1 = new double[3] { currentHand.Fingers[0].bones[0].Direction.x * thumbWeight, currentHand.Fingers[0].bones[0].Direction.y * thumbWeight, currentHand.Fingers[0].bones[0].Direction.z * thumbWeight };
-        double[] thumb2 = new double[3] { currentHand.Fingers[0].bones[1].Direction.x * thumbWeight, currentHand.Fingers[0].bones[1].Direction.y * thumbWeight, currentHand.Fingers[0].bones[1].Direction.z * thumbWeight };
-        double[] thumb3 = new double[3] { currentHand.Fingers[0].bones[2].Direction.x * thumbWeight, currentHand.Fingers[0].bones[2].Direction.y * thumbWeight, currentHand.Fingers[0].bones[2].Direction.z * thumbWeight };
-        double[] thumb4 = new double[3] { currentHand.Fingers[0].bones[3].Direction.x * thumbWeight, currentHand.Fingers[0].bones[3].Direction.y * thumbWeight, currentHand.Fingers[0].bones[3].Direction.z * thumbWeight };
+        Vector3 palm = leapDirToV3(currentHand.PalmNormal);
 
-        double[] index1 = new double[3] { currentHand.Fingers[1].bones[0].Direction.x, currentHand.Fingers[1].bones[0].Direction.y, currentHand.Fingers[1].bones[0].Direction.z };
-        double[] index2 = new double[3] { currentHand.Fingers[1].bones[1].Direction.x, currentHand.Fingers[1].bones[1].Direction.y, currentHand.Fingers[1].bones[1].Direction.z };
-        double[] index3 = new double[3] { currentHand.Fingers[1].bones[2].Direction.x, currentHand.Fingers[1].bones[2].Direction.y, currentHand.Fingers[1].bones[2].Direction.z };
-        double[] index4 = new double[3] { currentHand.Fingers[1].bones[3].Direction.x, currentHand.Fingers[1].bones[3].Direction.y, currentHand.Fingers[1].bones[3].Direction.z };
+        //rotate palm and all other hand vectors so that the palm of the hand points along the z axis
+        Vector3 zAxis = new Vector3(0, 0, 3);
+        double angle = Math.Acos((Vector3.Dot(palm, zAxis)) / (palm.magnitude * zAxis.magnitude));
+        angle *= (180 / Math.PI);
+        Vector3 crossed = Vector3.Cross(palm, zAxis);
+        Quaternion rotation = Quaternion.AngleAxis((float)angle, crossed);
+        palm = rotation * palm;
 
-        double[] middle1 = new double[3] { currentHand.Fingers[2].bones[0].Direction.x, currentHand.Fingers[2].bones[0].Direction.y, currentHand.Fingers[2].bones[0].Direction.z };
-        double[] middle2 = new double[3] { currentHand.Fingers[2].bones[1].Direction.x, currentHand.Fingers[2].bones[1].Direction.y, currentHand.Fingers[2].bones[1].Direction.z };
-        double[] middle3 = new double[3] { currentHand.Fingers[2].bones[2].Direction.x, currentHand.Fingers[2].bones[2].Direction.y, currentHand.Fingers[2].bones[2].Direction.z };
-        double[] middle4 = new double[3] { currentHand.Fingers[2].bones[3].Direction.x, currentHand.Fingers[2].bones[3].Direction.y, currentHand.Fingers[2].bones[3].Direction.z };
 
-        double[] ring1 = new double[3] { currentHand.Fingers[3].bones[0].Direction.x, currentHand.Fingers[3].bones[0].Direction.y, currentHand.Fingers[3].bones[0].Direction.z };
-        double[] ring2 = new double[3] { currentHand.Fingers[3].bones[1].Direction.x, currentHand.Fingers[3].bones[1].Direction.y, currentHand.Fingers[3].bones[1].Direction.z };
-        double[] ring3 = new double[3] { currentHand.Fingers[3].bones[2].Direction.x, currentHand.Fingers[3].bones[2].Direction.y, currentHand.Fingers[3].bones[2].Direction.z };
-        double[] ring4 = new double[3] { currentHand.Fingers[3].bones[3].Direction.x, currentHand.Fingers[3].bones[3].Direction.y, currentHand.Fingers[3].bones[3].Direction.z };
+        Vector3 thumb1 = rotation * leapDirToV3(currentHand.Fingers[0].bones[0].Direction);
+        Vector3 thumb2 = rotation * leapDirToV3(currentHand.Fingers[0].bones[1].Direction);
+        Vector3 thumb3 = rotation * leapDirToV3(currentHand.Fingers[0].bones[2].Direction);
+        Vector3 thumb4 = rotation * leapDirToV3(currentHand.Fingers[0].bones[3].Direction);
 
-        double[] pinky1 = new double[3] { currentHand.Fingers[4].bones[0].Direction.x, currentHand.Fingers[4].bones[0].Direction.y, currentHand.Fingers[4].bones[0].Direction.z };
-        double[] pinky2 = new double[3] { currentHand.Fingers[4].bones[1].Direction.x, currentHand.Fingers[4].bones[1].Direction.y, currentHand.Fingers[4].bones[1].Direction.z };
-        double[] pinky3 = new double[3] { currentHand.Fingers[4].bones[2].Direction.x, currentHand.Fingers[4].bones[2].Direction.y, currentHand.Fingers[4].bones[2].Direction.z };
-        double[] pinky4 = new double[3] { currentHand.Fingers[4].bones[3].Direction.x, currentHand.Fingers[4].bones[3].Direction.y, currentHand.Fingers[4].bones[3].Direction.z };
+        Vector3 index1 = rotation * leapDirToV3(currentHand.Fingers[1].bones[0].Direction);
+        Vector3 index2 = rotation * leapDirToV3(currentHand.Fingers[1].bones[1].Direction);
+        Vector3 index3 = rotation * leapDirToV3(currentHand.Fingers[1].bones[2].Direction);
+        Vector3 index4 = rotation * leapDirToV3(currentHand.Fingers[1].bones[3].Direction);
 
-        double[] palm = new double[3] { currentHand.PalmNormal.x, currentHand.PalmNormal.y, currentHand.PalmNormal.z };
+        Vector3 middle1 = rotation * leapDirToV3(currentHand.Fingers[2].bones[0].Direction);
+        Vector3 middle2 = rotation * leapDirToV3(currentHand.Fingers[2].bones[1].Direction);
+        Vector3 middle3 = rotation * leapDirToV3(currentHand.Fingers[2].bones[2].Direction);
+        Vector3 middle4 = rotation * leapDirToV3(currentHand.Fingers[2].bones[3].Direction);
+
+        Vector3 ring1 = rotation * leapDirToV3(currentHand.Fingers[3].bones[0].Direction);
+        Vector3 ring2 = rotation * leapDirToV3(currentHand.Fingers[3].bones[1].Direction);
+        Vector3 ring3 = rotation * leapDirToV3(currentHand.Fingers[3].bones[2].Direction);
+        Vector3 ring4 = rotation * leapDirToV3(currentHand.Fingers[3].bones[3].Direction);
+
+        Vector3 pinky1 = rotation * leapDirToV3(currentHand.Fingers[4].bones[0].Direction);
+        Vector3 pinky2 = rotation * leapDirToV3(currentHand.Fingers[4].bones[1].Direction);
+        Vector3 pinky3 = rotation * leapDirToV3(currentHand.Fingers[4].bones[2].Direction);
+        Vector3 pinky4 = rotation * leapDirToV3(currentHand.Fingers[4].bones[3].Direction);
 
         System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
         file.WriteLine(palm[0] + " " + palm[1] + " " + palm[2]);
@@ -445,7 +435,9 @@ public class SpaceBar : MonoBehaviour
     {
         double[,] handArray = new double[21, 3];
 
-        System.IO.StreamReader file = new System.IO.StreamReader(Application.dataPath+"/templates/"+fileName);
+        System.IO.StreamReader file = new System.IO.StreamReader(Application.dataPath + "/templatesAxised/" + fileName);
+        //System.IO.StreamReader file = new System.IO.StreamReader(Application.dataPath+"/templates/"+fileName);
+        //System.IO.StreamReader file = new System.IO.StreamReader(fileName);
         String line;
         int i = 0;
         while ((line = file.ReadLine()) != null)
