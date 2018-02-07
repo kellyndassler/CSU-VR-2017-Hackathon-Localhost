@@ -30,8 +30,7 @@ public struct signTemplate
 
 public class SpaceBar : MonoBehaviour
 {
-    LeapServiceProvider lsp;    //get interface with the leapmotion device/SDK
-    Controller cont;            //get a controller from the device
+    Controller cont;            //controller from the device
     signTemplate baseHand;      //base template for use in comparison and loops
     public TextMeshPro textmeshPro;     //base mesh for output of current sign
     public GameObject bed;
@@ -60,15 +59,14 @@ public class SpaceBar : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        lsp = new LeapServiceProvider();
         baseHands = new List<signTemplate>();
-        cont = lsp.GetLeapController();
+        cont = new Controller();
 
         cont.FrameReady += handleFrameReady;        //add listener that notifies if there's a valid tracking frame
         //bed.SetActive(false);
         /*generate the signing dictionary*/
-        baseHand = readTheStuffs("OpenPalmReference.txt");
-        baseHands.Add(baseHand);
+        //baseHand = readTheStuffs("OpenPalmReference.txt");
+        //baseHands.Add(baseHand);
         baseHand = readTheStuffs("aReference.txt");
         baseHands.Add(baseHand);
         baseHand = readTheStuffs("bReference.txt");
@@ -108,7 +106,7 @@ public class SpaceBar : MonoBehaviour
             currentTick = DateTime.Now.Ticks;
             if (nextTick <= currentTick && framey.CurrentFramesPerSecond > 0 && framey.Hands.Count > 0)        //if there are multiple tracking frames and hand in frame
             {
-                nextTick = DateTime.Now.Ticks + 2000000;   //10 million ticks = 1 second
+                nextTick = DateTime.Now.Ticks + 1500000;   //10 million ticks = 1 second
                 compareHand = framey.Hands[0];
                 
                 double compareVal = 100;    //default value above any leap motion can give
@@ -178,7 +176,7 @@ public class SpaceBar : MonoBehaviour
 
                     UpdateText("Progress: \n" + signSoFar.ToUpper() + "\n");
                 }
-                else if(currentTick - lastSign >= 20000000 )
+                else if(currentTick - lastSign >= 15000000 )
                 {
                     //UpdateText("You signed: \n" + currentSign.ToUpper() + "\n");
                     //UpdateTextBad("You signed: \n" + currentSign.ToUpper() + "\n Score:  " + score + "%"); //update the output with the sign found
@@ -186,7 +184,7 @@ public class SpaceBar : MonoBehaviour
                     UpdateText("\nTry: "+signToTry+"\n");
                 }
                 
-                print(signSoFar);
+                //print(signSoFar);
             }
         }
         catch(Exception except)
