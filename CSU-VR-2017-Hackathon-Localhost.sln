@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSU-VR-2017-Hackathon-Localhost", "CSU-VR-2017-Hackathon-Localhost.csproj", "{75902B50-D0D5-8F2F-126F-6EB349BC8F57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSU-VR-2017-Hackathon-Localhost.Editor", "CSU-VR-2017-Hackathon-Localhost.Editor.csproj", "{6A1E4361-68C4-4F02-E8D3-ACBA839F460F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75902B50-D0D5-8F2F-126F-6EB349BC8F57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75902B50-D0D5-8F2F-126F-6EB349BC8F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75902B50-D0D5-8F2F-126F-6EB349BC8F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75902B50-D0D5-8F2F-126F-6EB349BC8F57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A1E4361-68C4-4F02-E8D3-ACBA839F460F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A1E4361-68C4-4F02-E8D3-ACBA839F460F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A1E4361-68C4-4F02-E8D3-ACBA839F460F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A1E4361-68C4-4F02-E8D3-ACBA839F460F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
